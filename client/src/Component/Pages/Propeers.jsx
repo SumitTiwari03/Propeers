@@ -90,7 +90,7 @@ const formatMessage = (text) => {
 
 const fetchAIResponse = async (prompt) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  const response = await axios.post('/api/propeers', {
+  const response = await axios.post('https://propeers.onrender.com/api/propeers', {
     prompt: prompt,
   }).catch(err => console.log("Error while fetching AI response", err));
   return response.data.Message;

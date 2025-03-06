@@ -98,7 +98,7 @@ export default function ProjectUpload() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('/api/profile/upload', {
+        const response = await axios.get('https://propeers.onrender.com/api/profile/upload', {
           withCredentials: true,
         });
         if (response.data.user) {
@@ -127,7 +127,7 @@ export default function ProjectUpload() {
       formData.append("description", project.description);
       formData.append("createdBy", createdBy);
 
-      const response = await axios.post("/api/profile/upload", formData, {
+      const response = await axios.post("https://propeers.onrender.com/api/profile/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

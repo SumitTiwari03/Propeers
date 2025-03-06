@@ -19,7 +19,7 @@ const Navbar = () => {
   // Function to fetch user data from API
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/profile', { withCredentials: true });
+      const response = await axios.get('https://propeers.onrender.com/api/profile', { withCredentials: true });
       if (response.data.user) {
         dispatch(login(response.data.user)); // Update Redux with user data
       }
@@ -74,7 +74,7 @@ const Navbar = () => {
   };
   const handleLogout = async () => {
     try {
-      const response = await axios.post('/api/auth/logout', {}, { withCredentials: true });
+      const response = await axios.post('https://propeers.onrender.com/api/auth/logout', {}, { withCredentials: true });
 
       // console.log(response)
       if (response.status === 200) {

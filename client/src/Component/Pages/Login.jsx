@@ -13,7 +13,7 @@ export default function Login() {
     const handleLogin = async (data) => {
         try {
             setLoading(true);
-            const response = await axios.post('/api/auth/login', {
+            const response = await axios.post('https://propeers.onrender.com/api/auth/login', {
                 email: data.email,
                 password: data.password,
             });

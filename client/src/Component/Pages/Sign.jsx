@@ -10,7 +10,7 @@ export default function Sign() {
     const Registeration = async (data) => {
         try {
           setLoading(true);
-          const res = await axios.post('/api/auth/register', {
+          const res = await axios.post('https://propeers.onrender.com/api/auth/register', {
             fullname: data.fullname,
             username: data.username,
             email: data.email,
@@ -21,7 +21,7 @@ export default function Sign() {
           console.log("Response data:- ",resData);
       
           // Profile creation
-          await axios.post('/api/profile/post', {
+          await axios.post('https://propeers.onrender.com/api/profile/post', {
             userId: resData.userId, // Use the userId returned from registration
             personalInfo: {
               username: resData.username,

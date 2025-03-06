@@ -23,7 +23,7 @@ export default function Projects() {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get("/api/projects", {
+      const response = await axios.get("https://propeers.onrender.com/api/projects", {
         withCredentials: true,
       })
       if (response.data) {

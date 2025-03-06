@@ -26,7 +26,7 @@ function Profile() {
 
   const handelReq = async () => {
     try {
-      const user = await axios.get('/api/profile', {
+      const user = await axios.get('https://propeers.onrender.com/api/profile', {
         withCredentials: true,
       });
       console.log("User data:", user.data.user);
@@ -39,7 +39,7 @@ function Profile() {
   const fetchUserData = async (userId) => {
     try {
       console.log("Received userId in request params:", userId);
-      const user = await axios.get('/api/profile/details', {
+      const user = await axios.get('https://propeers.onrender.com/api/profile/details', {
         params: { userId }, // Pass userId as a query parameter
         withCredentials: true,
       });
@@ -70,7 +70,7 @@ function Profile() {
   const handelProject = async (userId) => {
     try {
       console.log("Received userId in request params:", userId);
-      const project = await axios.get('/api/profile/project', {
+      const project = await axios.get('https://propeers.onrender.com/api/profile/project', {
         query: { userId }, // Pass userId as a query parameter
         withCredentials: true,
       });

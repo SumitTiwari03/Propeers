@@ -13,7 +13,7 @@ export default function Edit() {
         const fetchUserData = async () => {
             try {
                 // Fetch user authentication data
-                const authResponse = await axios.get('/api/profile/edit', {
+                const authResponse = await axios.get('https://propeers.onrender.com/api/profile/edit', {
                     withCredentials: true,
                 });
 
@@ -22,7 +22,7 @@ export default function Edit() {
                     const userId = authResponse.data.user.userId;
 
                     // Fetch profile data using userId
-                    const profileResponse = await axios.get('/api/profile/details', {
+                    const profileResponse = await axios.get('https://propeers.onrender.com/api/profile/details', {
                         params: { userId }, // Pass userId as a query parameter
                         withCredentials: true,
                     });
@@ -158,7 +158,7 @@ export default function Edit() {
           formData.append('socialLinks', JSON.stringify(socialLinks));
           formData.append('technicalSkill', JSON.stringify(selectedSkills));
       
-          const response = await axios.patch('/api/profile/edit', formData, {
+          const response = await axios.patch('https://propeers.onrender.com/api/profile/edit', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },

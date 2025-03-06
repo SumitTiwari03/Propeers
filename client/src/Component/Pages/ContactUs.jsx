@@ -39,7 +39,7 @@ export default function Contact() {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    const data= await axios.post('/api/maildata',formState)
+    const data= await axios.post('https://propeers.onrender.com/api/maildata',formState)
     console.log(data);
 
     setIsSubmitted(true);
