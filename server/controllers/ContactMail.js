@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 dotenv.config();
 
 const ContactMail = async (req, res) => {
-  const { username, email, Message } = req.body;
+  const { username, email, message } = req.body;
 
   try {
     const transporter = nodemailer.createTransport({
@@ -27,7 +27,7 @@ const ContactMail = async (req, res) => {
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Message:</strong></p>
           <blockquote style="border-left: 4px solid #ddd; padding-left: 10px; color: #555;">
-            ${Message}
+            ${message}
           </blockquote>
           <hr>
           <p style="font-size: 14px; color: #777;">This email is automatically generated for record-keeping purposes.</p>
