@@ -2,7 +2,7 @@ const userModel = require("../model/User.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
-const mailer=require('./mailverify')
+const mailer = require("./mailverify");
 dotenv.config();
 
 //======================================================= registeration=============================================
@@ -20,9 +20,9 @@ exports.register = async (req, res) => {
     console.log(err);
   }
   if (existingUserEmail) return res.send({ Message: "Email already exists" });
-  if (existingUsername)  return res.send({ Message: "Username already exists" });
- 
-  // hashing the password 
+  if (existingUsername) return res.send({ Message: "Username already exists" });
+
+  // hashing the password
   try {
     await bcrypt.hash(password, 10, async (err, hash) => {
       if (err) res.send("Something went wrong");
@@ -32,20 +32,24 @@ exports.register = async (req, res) => {
         email,
         password: hash,
       });
-      const JWT_SECRET=process.env.JWT_SECRETE
+      const JWT_SECRET = process.env.JWT_SECRETE;
       await user.save();
-      const token=jwt.sign({email},JWT_SECRET, { expiresIn: "1h" })
+      const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
       const verificationLink = `https://propeers.onrender.com/api/auth/verifyemail?token=${token}`;
-    const emailResponse = await mailer(username, email, verificationLink);
+      const emailResponse = await mailer(username, email, verificationLink);
 
-    if (!emailResponse.success) {
-      return res.status(500).send({
-        message: "User registered, but email could not be sent",
-        error: emailResponse.error,
+      if (!emailResponse.success) {
+        return res.status(500).send({
+          message: "User registered, but email could not be sent",
+          error: emailResponse.error,
+        });
+      }
+
+      res.send({
+        Message: "Registered successfully",
+        User: user,
+        userId: user._id,
       });
-    }
-
-      res.send({ Message: "Registered successfully", User: user,userId: user._id});
     });
   } catch (err) {
     res.send({ Error: err });
@@ -53,7 +57,6 @@ exports.register = async (req, res) => {
 };
 
 // ================================================login code===========================================
-
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -71,7 +74,9 @@ exports.login = async (req, res) => {
 
     // If email is not verified
     if (!userLogin.isVerified) {
-      return res.status(400).json({ message: "Please verify your email first" });
+      return res
+        .status(400)
+        .json({ message: "Please verify your email first" });
     }
 
     // Compare the provided password with the hashed password
@@ -90,13 +95,13 @@ exports.login = async (req, res) => {
         userId: userLogin._id,
       },
       process.env.JWT_SECRETE,
-      { expiresIn: '1h' } // Token expires in 1 hour
+      { expiresIn: "1h" } // Token expires in 1 hour
     );
 
     // Set the token in a cookie
     res.cookie("usertoken", token, {
       path: "/",
-      expires: new Date(Date.now() + 1000 * 60 * 60), // 1 hour
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 1 hour
       httpOnly: true,
       sameSite: "lax",
     });
