@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
       const JWT_SECRET=process.env.JWT_SECRETE
       await user.save();
       const token=jwt.sign({email},JWT_SECRET, { expiresIn: "1h" })
-      const verificationLink = `http://localhost:8080/api/auth/verifyemail?token=${token}`;
+      const verificationLink = `https://propeers.onrender.com/api/auth/verifyemail?token=${token}`;
     const emailResponse = await mailer(username, email, verificationLink);
 
     if (!emailResponse.success) {

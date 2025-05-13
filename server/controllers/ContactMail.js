@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 dotenv.config();
 
 const ContactMail = async (req, res) => {
-  const { username, email, Message } = req.body;
+  const { username, email, message } = req.body;
 
   try {
     const transporter = nodemailer.createTransport({
@@ -46,7 +46,7 @@ const ContactMail = async (req, res) => {
           <p>We have received your query and will get back to you as soon as possible.</p>
           <p><strong>Your Message:</strong></p>
           <blockquote style="border-left: 4px solid #ddd; padding-left: 10px; color: #555;">
-            ${Message}
+            ${message}
           </blockquote>
           <p>If you need immediate assistance, feel free to reply to this email.</p>
           <hr>

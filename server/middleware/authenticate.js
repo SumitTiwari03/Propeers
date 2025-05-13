@@ -11,7 +11,7 @@ const authenticate = (req, res, next) => {
   } else {
     const token = cookies.split("=")[1];
     jwt.verify(token, process.env.JWT_SECRETE, (err, user) => {
-      if (err) res.send({ Message: "Invalid token ss" });
+      if (err) res.send({ Message: "Invalid token" });
       if (user) {
         req.body = user;
         res.send({ user });
