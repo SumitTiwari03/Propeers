@@ -6,6 +6,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const baseUrl = import.meta.env.VITE_URL;
+
 const InputField = ({ label, name, type = 'text', value, onChange, placeholder, required = false }) => (
   <div className="mb-4">
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -98,7 +100,7 @@ export default function ProjectUpload() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('https://propeers-07w5.onrender.com/api/profile/upload', {
+        const response = await axios.get(`${baseUrl}/api/profile/upload`, {
           withCredentials: true,
         });
         if (response.data.user) {
@@ -127,7 +129,7 @@ export default function ProjectUpload() {
       formData.append("description", project.description);
       formData.append("createdBy", createdBy);
 
-      const response = await axios.post("https://propeers-07w5.onrender.com/api/profile/upload", formData, {
+      const response = await axios.post(`${baseUrl}/api/profile/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

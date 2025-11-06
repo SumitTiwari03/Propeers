@@ -5,6 +5,9 @@ import { FaGithub, FaLinkedin, FaTwitter, FaGlobe, FaEnvelope, FaMapMarkerAlt, F
 import { motion, AnimatePresence } from 'framer-motion';
 axios.defaults.withCredentials = true
 
+
+const baseUrl = import.meta.env.VITE_URL;
+
 function Profile() {
   const navigate = useNavigate(); 
   const [userData, setUserData] = useState(null);
@@ -34,7 +37,7 @@ function Profile() {
 
   const handelReq = async () => {
     try {
-      const user = await axios.get('https://propeers-07w5.onrender.com/api/profile', {
+      const user = await axios.get(`${baseUrl}/api/profile`, {
         withCredentials: true,
       });
       console.log("User data only user:", user);
@@ -49,7 +52,7 @@ function Profile() {
   const fetchUserData = async (userId) => {
     try {
       console.log("Received userId in request params:", userId);
-      const user = await axios.get('https://propeers-07w5.onrender.com/api/profile/details', {
+      const user = await axios.get(`${baseUrl}/api/profile/details`, {
         params: { userId },
         withCredentials: true,
       });
@@ -82,7 +85,7 @@ function Profile() {
   const handelProject = async (userId) => {
     try {
       console.log("Received userId in request params:", userId);
-      const project = await axios.get('https://propeers-07w5.onrender.com/api/profile/project', {
+      const project = await axios.get(`${baseUrl}/api/profile/project`, {
         query: { userId },
         withCredentials: true,
       });
@@ -134,7 +137,7 @@ function Profile() {
 
   const editProject = async () => {
     try {
-      const response = await axios.patch('https://propeers-07w5.onrender.com/api/profile/editproject', selectedProject)
+      const response = await axios.patch(`${baseUrl}/api/profile/editproject`, selectedProject)
       console.log("response data:- ", response.data)
       console.log("SuccessFully updated:- ", response.data)
       setNotification({ type: 'success', message: 'Project updated successfully!' });
@@ -150,7 +153,7 @@ function Profile() {
 
   const deleteProject = async () => {
     try {
-      const response = await axios.delete('https://propeers-07w5.onrender.com/api/profile/deleteproject', { 
+      const response = await axios.delete(`${baseUrl}/api/profile/deleteproject`, { 
         data: { _id: selectedProject._id } 
       })
       console.log("Project id:-", selectedProject._id);

@@ -6,6 +6,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 
+const baseUrl = import.meta.env.VITE_URL;
+
+
 export default function Sign() {
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
     const [loading, setLoading] = useState(false);
@@ -18,7 +21,7 @@ export default function Sign() {
     const Registeration = async (data) => {
         try {
             setLoading(true);
-            const res = await axios.post('https://propeers-07w5.onrender.com/api/auth/register', {
+            const res = await axios.post(`${baseUrl}/api/auth/register`, {
                 fullname: data.fullname,
                 username: data.username,
                 email: data.email,
@@ -29,7 +32,7 @@ export default function Sign() {
             console.log("Response data:- ", resData);
 
             // Profile creation
-            await axios.post('https://propeers-07w5.onrender.com/api/profile/post', {
+            await axios.post(`${baseUrl}/api/profile/post`, {
                 userId: resData.userId,
                 personalInfo: {
                     username: resData.username,

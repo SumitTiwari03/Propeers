@@ -4,6 +4,9 @@ import SplineEmbed from '../SmallComponents/SplineEmbed';
 import { FaPaperPlane, FaUser, FaEnvelope, FaCommentAlt } from 'react-icons/fa';
 import axios from 'axios'
 
+
+const baseUrl = import.meta.env.VITE_URL;
+
 const InputField = ({ icon: Icon, placeholder, name, value, onChange, type = 'text' }) => (
   <div className="relative mb-6">
     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -39,7 +42,7 @@ export default function Contact() {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    const data= await axios.post('https://propeers-07w5.onrender.com/api/maildata',formState)
+    const data= await axios.post(`${baseUrl}/api/maildata`,formState)
     console.log(data);
 
     setIsSubmitted(true);

@@ -6,6 +6,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 
+
+const baseUrl = import.meta.env.VITE_URL;
+
+
 export default function ForgotPassword() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [loading, setLoading] = useState(false);
@@ -14,7 +18,7 @@ export default function ForgotPassword() {
     const handleForgotPassword = async (data) => {
         try {
             setLoading(true);
-            await axios.post('https://propeers-07w5.onrender.com/api/auth/forgot-password', {
+            await axios.post(`${baseUrl}/api/auth/forgot-password`, {
                 email: data.email,
             });
 

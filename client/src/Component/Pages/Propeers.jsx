@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaPaperPlane, FaRobot, FaUser, FaArrowDown, FaCopy, FaCheck, FaTrash, FaStop } from 'react-icons/fa';
+import { FaPaperPlane, FaRobot, FaUser, FaArrowDown, FaCopy, FaCheck, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const baseUrl = import.meta.env.VITE_URL;
 
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false);
@@ -11,7 +13,7 @@ const CodeBlock = ({ code, language }) => {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 2000); 
   };
 
   return (
@@ -95,34 +97,9 @@ const formatMessage = (text) => {
   });
 };
 
-const TypingMessage = ({ text, onComplete }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 20); // Typing speed: 20ms per character
-
-      return () => clearTimeout(timeout);
-    } else if (onComplete && currentIndex === text.length && displayedText.length > 0) {
-      onComplete();
-    }
-  }, [currentIndex, text, onComplete, displayedText.length]);
-
-  return <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed">
-    {formatMessage(displayedText)}
-    {currentIndex < text.length && (
-      <span className="inline-block w-2 h-4 bg-red-500 animate-pulse ml-1"></span>
-    )}
-  </div>;
-};
-
 const fetchAIResponse = async (prompt, sessionId) => {
   try {
-    const response = await axios.post('https://propeers-07w5.onrender.com/api/propeers', {
+    const response = await axios.post(`${baseUrl}/api/propeers`, {
       prompt: prompt,
       sessionId: sessionId,
     });
@@ -141,13 +118,11 @@ export default function Propeers() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const chatEndRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const textareaRef = useRef(null);
 
   useEffect(() => {
     const newSessionId = Date.now().toString();
@@ -156,18 +131,10 @@ export default function Propeers() {
   }, []);
 
   useEffect(() => {
-    if (chatContainerRef.current && !isTyping) {
+    if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages, isLoading, isTyping]);
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 150) + 'px';
-    }
-  }, [inputText]);
+  }, [messages, isLoading]);
 
   const handleScroll = () => {
     if (chatContainerRef.current) {
@@ -186,7 +153,7 @@ export default function Propeers() {
   }, []);
 
   const handleSubmit = async (e) => {
-    e?.preventDefault();
+    e.preventDefault();
     if (!inputText.trim() || isLoading) return;
 
     const userMessage = { id: Date.now(), text: inputText, isUser: true };
@@ -202,13 +169,11 @@ export default function Propeers() {
         setSessionId(aiResponse.sessionId);
       }
       
-      setIsTyping(true);
       const aiMessage = { 
         id: Date.now() + 1, 
         text: aiResponse.message, 
         isUser: false,
-        historyLength: aiResponse.historyLength,
-        isTyping: true
+        historyLength: aiResponse.historyLength 
       };
       setMessages(prev => [...prev, aiMessage]);
       
@@ -227,13 +192,6 @@ export default function Propeers() {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -244,13 +202,6 @@ export default function Propeers() {
     const newSessionId = Date.now().toString();
     setSessionId(newSessionId);
     console.log("Chat cleared. New session:", newSessionId);
-  };
-
-  const handleTypingComplete = (messageId) => {
-    setIsTyping(false);
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId ? { ...msg, isTyping: false } : msg
-    ));
   };
 
   return (
@@ -349,22 +300,12 @@ export default function Propeers() {
                         <>
                           <FaRobot className={`text-sm flex-shrink-0 ${message.isError ? 'text-red-600' : ''}`} />
                           <span className="font-semibold text-sm">AI Assistant</span>
-                          {message.isTyping && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">typing...</span>
-                          )}
                         </>
                       )}
                     </div>
-                    {message.isUser || message.isError || !message.isTyping ? (
-                      <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed">
-                        {formatMessage(message.text)}
-                      </div>
-                    ) : (
-                      <TypingMessage 
-                        text={message.text} 
-                        onComplete={() => handleTypingComplete(message.id)}
-                      />
-                    )}
+                    <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed">
+                      {formatMessage(message.text)}
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -401,7 +342,7 @@ export default function Propeers() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               onClick={scrollToBottom}
-              className="fixed bottom-24 md:bottom-32 right-4 md:right-8 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-full hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-110 shadow-2xl z-10"
+              className="fixed bottom-24 md:bottom-28 right-4 md:right-8 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-full hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-110 shadow-2xl z-10"
               aria-label="Scroll to bottom"
             >
               <FaArrowDown className="text-xl" />
@@ -412,28 +353,20 @@ export default function Propeers() {
 
       {/* Input Footer */}
       <footer className="bg-white dark:bg-gray-800 p-3 md:p-4 shadow-lg border-t dark:border-gray-700 flex-shrink-0">
-        <form onSubmit={handleSubmit} className="flex items-end space-x-2 md:space-x-4 max-w-5xl mx-auto">
-          <div className="flex-1 relative">
-            <textarea
-              ref={textareaRef}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything... (Press Enter to send, Shift+Enter for new line)"
-              className="w-full px-4 md:px-6 py-2 md:py-3 border-2 border-gray-300 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white transition-all duration-300 shadow-sm text-sm md:text-base resize-none"
-              aria-label="Enter your prompt"
-              disabled={isLoading}
-              rows={1}
-              style={{ minHeight: '44px', maxHeight: '150px' }}
-            />
-            <div className="absolute bottom-2 right-2 text-xs text-gray-400 dark:text-gray-500">
-              Enter ↵
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="flex space-x-2 md:space-x-4 max-w-5xl mx-auto">
+          <input
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Ask me anything..."
+            className="flex-1 px-4 md:px-6 py-2 md:py-3 border-2 border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white transition-all duration-300 shadow-sm text-sm md:text-base"
+            aria-label="Enter your prompt"
+            disabled={isLoading}
+          />
           <button
             type="submit"
             disabled={isLoading || !inputText.trim()}
-            className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg flex items-center space-x-2 h-[44px]"
+            className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg flex items-center space-x-2"
             aria-label="Send message"
           >
             <FaPaperPlane className="w-4 h-4 md:w-5 md:h-5" />

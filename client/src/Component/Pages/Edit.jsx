@@ -7,6 +7,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
 
+
+const baseUrl = import.meta.env.VITE_URL;
+
 export default function Edit() {
     const [userData, setUserData] = useState();
     const [loading, setLoading] = useState(true);
@@ -43,7 +46,7 @@ export default function Edit() {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const authResponse = await axios.get('https://propeers-07w5.onrender.com/api/profile/edit', {
+                const authResponse = await axios.get(`${baseUrl}/api/profile/edit`, {
                     withCredentials: true,
                 });
 
@@ -51,7 +54,7 @@ export default function Edit() {
                     setIsAuthenticated(true);
                     const userId = authResponse.data.user.userId;
 
-                    const profileResponse = await axios.get('https://propeers-07w5.onrender.com/api/profile/details', {
+                    const profileResponse = await axios.get(`${baseUrl}/api/profile/details`, {
                         params: { userId },
                         withCredentials: true,
                     });
@@ -193,7 +196,7 @@ export default function Edit() {
                 console.log(pair[0] + ': ' + pair[1]);
             }
 
-            const response = await axios.patch('https://propeers-07w5.onrender.com/api/profile/edit', formData, {
+            const response = await axios.patch(`${baseUrl}/api/profile/edit`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

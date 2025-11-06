@@ -5,6 +5,9 @@ const dotenv = require("dotenv");
 const { verificationMailer, resetPasswordMailer } = require("./mailverify");
 dotenv.config();
 
+const baseUrl = process.env.REACT_APP_URL;
+const pageUrl = process.env.REACT_APP_Page;
+
 //======================================================= Registration =============================================
 
 exports.register = async (req, res) => {
@@ -39,6 +42,7 @@ exports.register = async (req, res) => {
 
     const JWT_SECRET = process.env.JWT_SECRETE;
     await user.save();
+    
 
     // Generate verification token
     const token = jwt.sign({ email, userId: user._id }, JWT_SECRET, { 
@@ -101,7 +105,7 @@ exports.verifyEmail = async (req, res) => {
     await user.save();
 
     // Redirect to frontend success page
-    res.redirect("https://propeers-07w5.onrender.com/login");
+    res.redirect(`${pageUrl}/login`);
   } catch (err) {
     console.error("Email verification error:", err);
     
@@ -122,7 +126,7 @@ exports.verifyEmail = async (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-
+  
   try {
     // Find the user by email or username
     const userLogin = await userModel.findOne({
@@ -133,22 +137,22 @@ exports.login = async (req, res) => {
     if (!userLogin) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
+    
     // If email is not verified
     if (!userLogin.isVerified) {
       return res.status(403).json({ 
         message: "Please verify your email first. Check your inbox for the verification link." 
       });
     }
-
+    
     // Compare the provided password with the hashed password
     const isPasswordValid = await bcrypt.compare(password, userLogin.password);
-
+    
     // If password is invalid
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
+    
     // Generate JWT token
     const token = jwt.sign(
       {
@@ -213,7 +217,7 @@ exports.forgotPassword = async (req, res) => {
     );
 
     // Create reset link (frontend route)
-    const resetLink = `https://propeers-07w5.onrender.com/reset-password/${token}`;
+    const resetLink = `${pageUrl}/reset-password/${token}`;
 
     // Send password reset email
     const emailResponse = await resetPasswordMailer(
@@ -324,7 +328,7 @@ exports.resendVerification = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    const verificationLink = `https://propeers-07w5.onrender.com/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${baseUrl}/api/auth/verify-email?token=${token}`;
 
     // Send verification email
     const emailResponse = await verificationMailer(

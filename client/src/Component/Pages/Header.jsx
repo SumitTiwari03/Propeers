@@ -5,6 +5,8 @@ import { FaBars, FaTimes, FaUser, FaMoon, FaSun, FaHeart, FaSignOutAlt, FaUpload
 import { useSelector, useDispatch } from 'react-redux';
 import { login, logout, toggleDarkMode, enableDarkMode } from '../../Redux/Store';
 
+const baseUrl = import.meta.env.VITE_URL;
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState('');
@@ -20,7 +22,7 @@ const Navbar = () => {
   // Function to fetch user data from API
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('https://propeers-07w5.onrender.com/api/profile', { withCredentials: true });
+      const response = await axios.get(`${baseUrl}/api/profile`, { withCredentials: true });
       if (response.data.user) {
         dispatch(login(response.data.user)); // Update Redux with user data
         setUsername(response.data.user.username || ''); // Set username
@@ -98,7 +100,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('https://propeers-07w5.onrender.com/api/auth/logout', {}, { withCredentials: true });
+      const response = await axios.post(`${baseUrl}/api/auth/logout`, {}, { withCredentials: true });
 
       if (response.status === 200) {
         console.log("Logged out successfully!");

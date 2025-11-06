@@ -14,6 +14,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173", // For local development
   "https://propeers-07w5.onrender.com", // Replace with your deployed frontend domain
+  "https://propeers.onrender.com"
 ]; 
 
 app.use(

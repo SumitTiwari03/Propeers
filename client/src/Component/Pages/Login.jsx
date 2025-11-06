@@ -6,6 +6,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Eye, EyeOff, Lock, Mail, AlertCircle, Send } from 'lucide-react';
 import 'react-toastify/dist/ReactToastify.css';
 
+
+const baseUrl = import.meta.env.VITE_URL;
+
 export default function Login() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +23,7 @@ export default function Login() {
             setLoading(true);
             setShowResendVerification(false); // Hide resend if showing
             
-            const response = await axios.post('https://propeers-07w5.onrender.com/api/auth/login', {
+            const response = await axios.post(`${baseUrl}/api/auth/login`, {
                 email: data.email,
                 password: data.password,
             });
@@ -55,7 +58,7 @@ export default function Login() {
     const handleResendVerification = async () => {
         try {
             setResendLoading(true);
-            await axios.post('https://propeers-07w5.onrender.com/api/auth/resend-verification', {
+            await axios.post(`${baseUrl}/api/auth/resend-verification`, {
                 email: userEmail,
             });
             

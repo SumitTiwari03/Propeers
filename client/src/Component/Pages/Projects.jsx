@@ -13,6 +13,9 @@ import {
 } from "react-icons/fa"
 import axios from "axios"
   
+
+const baseUrl = import.meta.env.VITE_URL;
+
 export default function Projects() {
   const [projects, setProjects] = useState([])
   const [filteredProjects, setFilteredProjects] = useState([])
@@ -23,7 +26,7 @@ export default function Projects() {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get("https://propeers-07w5.onrender.com/api/projects", {
+      const response = await axios.get(`${baseUrl}/api/projects`, {
         withCredentials: true,
       })
       if (response.data) {
