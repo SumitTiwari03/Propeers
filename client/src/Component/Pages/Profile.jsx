@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 axios.defaults.withCredentials = true
 
 function Profile() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const [userData, setUserData] = useState(null);
   const [projects, setProjects] = useState();
   const [loading, setLoading] = useState(true);
