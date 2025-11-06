@@ -18,12 +18,7 @@ const profileSchema = new mongoose.Schema({
     github: { type: String },
     linkedIn: { type: String },
     Twitter: { type: String },
-    others: [
-      {
-        platform: { type: String },
-        url: { type: String },
-      },
-    ],
+    others: { type: String },
   },
   technicalSkill: { 
     type: [String],
