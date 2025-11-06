@@ -27,7 +27,7 @@ const PostProfile = async (req, res) => {
       user: userId,
       personalInfo: {
         imgUrl: imgUrl,
-        name: user.username, // or user.fullname depending on your schema
+        name: personalInfo.username, // or user.fullname depending on your schema
         location: personalInfo?.location || "",
         email: user.email,
         college: personalInfo?.college || "",
@@ -36,7 +36,7 @@ const PostProfile = async (req, res) => {
         github: socialLinks?.github || "",
         linkedIn: socialLinks?.linkedIn || "",
         Twitter: socialLinks?.Twitter || "",
-        others: socialLinks?.others || [],
+        others: socialLinks?.others || "",
       },
       technicalSkill: technicalSkill || [],
     });

@@ -37,6 +37,7 @@ export default function Sign() {
                 personalInfo: {
                     username: resData.username,
                     email: resData.email,
+                    name:data.fullname
                 },
                 socialLinks: {},
                 technicalSkill: [],

@@ -6,7 +6,7 @@ const { verificationMailer, resetPasswordMailer } = require("./mailverify");
 dotenv.config();
 
 const baseUrl = process.env.REACT_APP_URL;
-const pageUrl = process.env.REACT_APP_Page;
+const pageUrl = process.env.URL;
 
 //======================================================= Registration =============================================
 
@@ -49,7 +49,7 @@ exports.register = async (req, res) => {
       expiresIn: "24h" 
     });
     
-    const verificationLink = `https://propeers.onrender.com/api/auth/verifyemail?token=${token}`;
+    const verificationLink = `${pageUrl}/api/auth/verifyemail?token=${token}`;
     
     // Send verification email
     const emailResponse = await verificationMailer(
@@ -105,7 +105,7 @@ exports.verifyEmail = async (req, res) => {
     await user.save();
 
     // Redirect to frontend success page
-    res.redirect(`${pageUrl}/login`);
+    res.redirect(`${baseUrl}/login`);
   } catch (err) {
     console.error("Email verification error:", err);
     
@@ -169,9 +169,11 @@ exports.login = async (req, res) => {
       path: "/",
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
       httpOnly: true,
-      sameSite: "lax",
-      secure:"true"
-      // sameSite: "none",
+      secure:"true",
+      // lax is for local dev Environment
+      // sameSite: "lax",
+      // this none is for production
+      sameSite: "none",
     }); 
 
     // Send success response
