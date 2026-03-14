@@ -5,7 +5,7 @@ import { store } from './Redux/Store.js'
 import { Provider } from 'react-redux'
 
 import App from './App.jsx'
-import { Home, About, Projects, Sign, Login, Profile, Propeers,ForgotPassword,ResetPassword, Edit, ContactUs,ProjectUpload } from './Component/Pages'
+import { Home, About, Projects, Sign, Login, Profile, Propeers,ForgotPassword,ResetPassword, Edit, ContactUs,ProjectUpload, Favorites } from './Component/Pages'
 
 const router = createBrowserRouter([
   {
@@ -43,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "projects",
         element: <Projects />
+      },
+      {
+        path: "favorites",
+        element: <Favorites />
       },
       {
         path: "profile",

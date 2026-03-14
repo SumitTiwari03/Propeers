@@ -206,6 +206,13 @@ const Navbar = () => {
                         >
                           <FaUser className="inline mr-2" />Profile
                         </NavLink>
+                        <NavLink 
+                          to="/favorites" 
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                          onClick={handleLinkClick}
+                        >
+                          <FaHeart className="inline mr-2" />Favorites
+                        </NavLink>
                         <button 
                           onClick={handleLogout} 
                           className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
@@ -310,6 +317,15 @@ const Navbar = () => {
                   onClick={handleLinkClick}
                 >
                   <FaUser className="inline mr-2" />Profile
+                </NavLink>
+                <NavLink 
+                  to="/favorites" 
+                  className={({ isActive }) => 
+                    `dark:text-white hover:text-red-500 dark:hover:text-red-500 py-2 transition-colors duration-200 ${isActive ? 'text-red-500' : ''}`
+                  }
+                  onClick={handleLinkClick}
+                >
+                  <FaHeart className="inline mr-2" />Favorites
                 </NavLink>
                 <button 
                   onClick={handleLogout}

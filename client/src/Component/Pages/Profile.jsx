@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios'
 import { FaGithub, FaLinkedin, FaTwitter, FaGlobe, FaEnvelope, FaMapMarkerAlt, FaUniversity, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,9 @@ const baseUrl = import.meta.env.VITE_URL;
 
 function Profile() {
   const navigate = useNavigate(); 
+  const [searchParams] = useSearchParams();
+  const viewedUserId = searchParams.get('userId');
+  const isOwnProfile = !viewedUserId;
   const [userData, setUserData] = useState(null);
   const [projects, setProjects] = useState();
   const [loading, setLoading] = useState(true);
@@ -34,6 +37,9 @@ function Profile() {
   const [isOpen, setIsOpen] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectImageFile, setProjectImageFile] = useState(null);
+  const [projectImagePreview, setProjectImagePreview] = useState(null);
+  const projectImageInputRef = useRef(null);
 
   const handelReq = async () => {
     try {
@@ -86,7 +92,7 @@ function Profile() {
     try {
       console.log("Received userId in request params:", userId);
       const project = await axios.get(`${baseUrl}/api/profile/project`, {
-        query: { userId },
+        params: { userId },
         withCredentials: true,
       });
       if (project.data) setProjects(project.data) 
@@ -98,6 +104,10 @@ function Profile() {
 
   useEffect(() => {
     const fetchAndPostProfile = async () => {
+      if (viewedUserId) {
+        setUsers({ userId: viewedUserId });
+        return;
+      }
       const data = await handelReq();
       if (data && data.user) {
         setUsers(data.user);
@@ -110,7 +120,7 @@ function Profile() {
       }
     };
     fetchAndPostProfile();
-  }, []);
+  }, [viewedUserId]);
 
   useEffect(() => {
     if (users) {
@@ -126,6 +136,8 @@ function Profile() {
   const openPopup = (project) => {
     setSelectedProject(project);
     setIsOpen(true);
+    setProjectImageFile(null);
+    setProjectImagePreview(null);
     console.log("Project details", project);
   };
 
@@ -137,9 +149,25 @@ function Profile() {
 
   const editProject = async () => {
     try {
-      const response = await axios.patch(`${baseUrl}/api/profile/editproject`, selectedProject)
-      console.log("response data:- ", response.data)
-      console.log("SuccessFully updated:- ", response.data)
+      let response;
+      if (projectImageFile) {
+        const formData = new FormData();
+        formData.append('_id', selectedProject._id);
+        formData.append('title', selectedProject.title || '');
+        formData.append('projectUrl', selectedProject.projectUrl || '');
+        formData.append('description', selectedProject.description || '');
+        formData.append('techStack', JSON.stringify(selectedProject.techStack || []));
+        formData.append('imgUrl', projectImageFile);
+        response = await axios.patch(`${baseUrl}/api/profile/editproject`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true,
+        });
+      } else {
+        response = await axios.patch(`${baseUrl}/api/profile/editproject`, selectedProject, {
+          withCredentials: true,
+        });
+      }
+      console.log("SuccessFully updated:- ", response.data);
       setNotification({ type: 'success', message: 'Project updated successfully!' });
       setTimeout(() => setNotification(null), 3000);
       closePopup();
@@ -307,11 +335,13 @@ function Profile() {
           </div>
 
           {/* Edit Button */}
-          <Link to={'/edit'} className="w-full mt-4">
-            <button className="w-full bg-blue-500 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white py-2.5 rounded-lg flex justify-center items-center transition duration-300">
-              <FaEdit className="mr-2" /> Edit Profile
-            </button>
-          </Link>
+          {isOwnProfile && (
+            <Link to={'/edit'} className="w-full mt-4">
+              <button className="w-full bg-blue-500 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white py-2.5 rounded-lg flex justify-center items-center transition duration-300">
+                <FaEdit className="mr-2" /> Edit Profile
+              </button>
+            </Link>
+          )}
         </div>
 
         {/* Projects Section */}
@@ -329,7 +359,7 @@ function Profile() {
                 >
                   <div className="h-40 w-full mb-4 flex-shrink-0">
                     <img
-                      src={card.image || 'https://via.placeholder.com/400x200'}
+                      src={card.imgUrl || 'https://via.placeholder.com/400x200'}
                       alt={card.title}
                       className="w-full h-full object-cover rounded-lg shadow"
                     />
@@ -339,12 +369,14 @@ function Profile() {
                     <p className="text-gray-500 dark:text-gray-300 text-sm">{card.description}</p>
                   </div>
                   <div className="flex justify-between gap-2 mt-auto">
-                    <button
-                      className="flex-1 bg-blue-500 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center justify-center transition duration-300"
-                      onClick={() => openPopup(card)}
-                    >
-                      <FaEdit className="mr-2" /> Edit
-                    </button>
+                    {isOwnProfile && (
+                      <button
+                        className="flex-1 bg-blue-500 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center justify-center transition duration-300"
+                        onClick={() => openPopup(card)}
+                      >
+                        <FaEdit className="mr-2" /> Edit
+                      </button>
+                    )}
                     <a href={`${card.projectUrl}`} target="_blank" rel="noopener noreferrer" className="flex-1">
                       <button className="w-full bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-300">
                         Visit
@@ -394,7 +426,48 @@ function Profile() {
               </button>
 
               <h2 className="text-2xl font-bold mb-6 dark:text-white">Edit Project</h2>
-              
+
+              {/* Project Image */}
+              <div className="mb-4">
+                <span className="text-gray-700 dark:text-gray-300 font-medium mb-2 block">Project Image:</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border dark:border-gray-600 bg-gray-100 dark:bg-gray-700">
+                    <img
+                      src={projectImagePreview || selectedProject?.imgUrl || 'https://via.placeholder.com/150'}
+                      alt="Project"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="file"
+                      ref={projectImageInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                          setProjectImageFile(file);
+                          const reader = new FileReader();
+                          reader.onload = (ev) => setProjectImagePreview(ev.target.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => projectImageInputRef.current.click()}
+                      className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm transition duration-300"
+                    >
+                      Change Image
+                    </button>
+                    {projectImagePreview && (
+                      <p className="text-xs text-green-500 mt-1">New image selected</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <label className="block mb-4">
                 <span className="text-gray-700 dark:text-gray-300 font-medium mb-2 block">Title:</span>
                 <input

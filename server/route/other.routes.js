@@ -12,6 +12,8 @@ const userProject=require('../controllers/userProject')
 const editProject=require('../controllers/editProject')
 const deleteProject=require('../controllers/deleteProject')
 const getProjects=require('../controllers/getProjects')
+const toggleFavoriteProject = require("../controllers/toggleFavoriteProject");
+const getFavoriteProjects = require("../controllers/getFavoriteProjects");
 
 // profiles securing routes
 router.get("/profile", auth);
@@ -21,13 +23,15 @@ router.get("/profile/upload", auth);
 
 
 router.get("/projects", getProjects);
+router.get("/projects/favorites", getFavoriteProjects);
+router.post("/projects/:projectId/favorite", toggleFavoriteProject);
 
 
 router.get("/profile/project", userProject);
 
 router.patch("/profile/edit", editProfile);
 router.delete("/profile/deleteproject", deleteProject); 
-router.patch("/profile/editproject", editProject);
+router.patch("/profile/editproject", ...editProject);
 
 router.post("/profile/post", PostProfile);
 router.post("/maildata", ContactMail);

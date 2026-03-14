@@ -10,7 +10,7 @@ const projectSchema = new mongoose.Schema({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Reference to the developer who created the project
+    ref: "user", // Reference to the developer who created the project
     required: true,
   },
   createdAt: {

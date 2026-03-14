@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useNavigate } from "react-router-dom"
 import {
   FaRocket,
   FaChevronLeft,
@@ -30,8 +31,24 @@ export default function Projects() {
         withCredentials: true,
       })
       if (response.data) {
-        setProjects(response.data)
-        setFilteredProjects(response.data)
+        const safeProjects = (Array.isArray(response.data) ? response.data : []).map((project) => ({
+          ...project,
+          title: project?.title || "Untitled Project",
+          description: project?.description || "",
+          imgUrl: project?.imgUrl || "",
+          projectUrl: project?.projectUrl || "#",
+          techStack: Array.isArray(project?.techStack)
+            ? project.techStack
+            : typeof project?.techStack === "string" && project.techStack.trim()
+              ? [project.techStack]
+              : [],
+          createdByUsername:
+            project?.createdByUsername ||
+            project?.createdBy?.username ||
+            (typeof project?.createdBy === "string" ? project.createdBy : "Unknown"),
+        }))
+        setProjects(safeProjects)
+        setFilteredProjects(safeProjects)
       }
       console.log("website projects:- ", response.data)
     } catch (err) {
@@ -45,14 +62,27 @@ export default function Projects() {
 
   useEffect(() => {
     const results = projects.filter(
-      (project) =>
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.createdBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.techStack.some((tech) => tech.toLowerCase().includes(searchTerm.toLowerCase())),
+      (project) => {
+        const creatorName = String(
+          project.createdByUsername || project.createdBy?.username || project.createdBy || "",
+        ).toLowerCase()
+
+        return (
+          String(project.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          creatorName.includes(searchTerm.toLowerCase()) ||
+          (project.techStack || []).some((tech) => tech.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+      },
     )
     setFilteredProjects(results)
     setCurrentPage(1)
   }, [searchTerm, projects])
+
+  const handleFavoriteChange = (projectId, isFavorite) => {
+    setProjects((prev) =>
+      prev.map((item) => (item._id === projectId ? { ...item, isFavorite } : item)),
+    )
+  }
 
   const indexOfLastProject = currentPage * projectsPerPage
   const indexOfFirstProject = indexOfLastProject - projectsPerPage
@@ -93,7 +123,7 @@ export default function Projects() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {currentProjects.map((project) => (
                 <ProjectCard
-                  key={project.id}
+                  key={project._id}
                   project={project}
                   onExplore={() => setSelectedProject(project)}
                 />
@@ -110,7 +140,11 @@ export default function Projects() {
       </div>
       <AnimatePresence>
         {selectedProject && (
-          <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
+          <ProjectModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            onFavoriteChange={handleFavoriteChange}
+          />
         )}
       </AnimatePresence>
     </div>
@@ -145,7 +179,7 @@ function ProjectCard({ project, onExplore }) {
         <div className="mb-4">
           <h4 className="font-semibold mb-2 dark:text-gray-200 text-sm">Tech Stack:</h4>
           <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto custom-scrollbar">
-            {project.techStack.map((tech, index) => (
+            {(project.techStack || []).map((tech, index) => (
               <span
                 key={index}
                 className="px-2 py-1 text-xs rounded-full dark:bg-gray-700 dark:text-gray-300 bg-gray-200 text-gray-700"
@@ -156,7 +190,9 @@ function ProjectCard({ project, onExplore }) {
           </div>
         </div>
         
-        {/* <p className="mb-4 dark:text-gray-300 text-gray-600 text-sm line-clamp-1">Created by: {project.createdBy}</p> */}
+        <p className="mb-4 dark:text-gray-300 text-gray-600 text-sm line-clamp-1">
+          Created by: {project.createdByUsername || project.createdBy?.username || "Unknown"}
+        </p>
         
         {/* Push button to bottom */}
         <button
@@ -170,8 +206,37 @@ function ProjectCard({ project, onExplore }) {
   )
 }
 
-function ProjectModal({ project, onClose }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+function ProjectModal({ project, onClose, onFavoriteChange }) {
+  const navigate = useNavigate()
+  const [isFavorite, setIsFavorite] = useState(Boolean(project.isFavorite))
+
+  useEffect(() => {
+    setIsFavorite(Boolean(project.isFavorite))
+  }, [project])
+
+  const handleFavoriteClick = async () => {
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/projects/${project._id}/favorite`,
+        {},
+        { withCredentials: true },
+      )
+      setIsFavorite(response.data.isFavorite)
+      onFavoriteChange(project._id, response.data.isFavorite)
+    } catch (error) {
+      console.log("Favorite toggle failed", error)
+      if (error.response?.status === 401) {
+        alert("Please login to add projects to favorites.")
+      }
+    }
+  }
+
+  const goToDeveloperProfile = () => {
+    if (project.createdById) {
+      navigate(`/profile?userId=${project.createdById}`)
+      onClose()
+    }
+  }
 
   return (
     <motion.div
@@ -211,7 +276,7 @@ function ProjectModal({ project, onClose }) {
               <div className="mb-6">
                 <h3 className="text-lg md:text-xl font-semibold mb-2">Tech Stack</h3>
                 <div className="flex flex-wrap gap-2">
-                  {project.techStack.map((tech, index) => (
+                  {(project.techStack || []).map((tech, index) => (
                     <span
                       key={index}
                       className="px-2 py-1 rounded-md text-sm dark:bg-gray-700 dark:text-gray-300 bg-gray-200 text-gray-700"
@@ -222,20 +287,18 @@ function ProjectModal({ project, onClose }) {
                 </div>
               </div>
 
-              {/* <p className="mb-6 dark:text-gray-300 text-gray-600 text-sm md:text-base">
-                Created by: {project.createdBy}
-              </p> */}
+              <p className="mb-6 dark:text-gray-300 text-gray-600 text-sm md:text-base">
+                Created by: {project.createdByUsername || project.createdBy?.username || "Unknown"}
+              </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                {/* <a
-                  href={project.developerProfileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={goToDeveloperProfile}
                   className="flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300 text-sm md:text-base"
                 >
                   <FaUser className="mr-2" />
-                  Developer Profile
-                </a> */}
+                  Visit Dev Profile
+                </button>
                 <a
                   href={project.projectUrl}
                   target="_blank"
@@ -245,8 +308,8 @@ function ProjectModal({ project, onClose }) {
                   <FaExternalLinkAlt className="mr-2" />
                   Visit Project
                 </a>
-                {/* <button
-                  onClick={() => setIsFavorite(!isFavorite)}
+                <button
+                  onClick={handleFavoriteClick}
                   className="flex items-center justify-center px-4 py-2 border-2 border-red-500 rounded-md hover:bg-red-50 dark:hover:bg-gray-700 transition duration-300"
                   aria-label="Toggle favorite"
                 >
@@ -255,7 +318,7 @@ function ProjectModal({ project, onClose }) {
                   ) : (
                     <FaRegHeart className="text-red-500 text-xl md:text-2xl" />
                   )}
-                </button> */}
+                </button>
               </div>
             </div>
           </div>

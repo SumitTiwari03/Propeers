@@ -2,12 +2,10 @@ const projectModel = require("../model/project.model");
 
 const userProject = async (req, res) => {
   try {
-    const { userId } = req.query; // Correctly destructure userId
-    const project = await projectModel.find({ user: userId }); // Match with `user` field in your schema
-
-    if (!project) {
-      return res.status(404).send({ message: "No Project found" });
-    }
+    const { userId } = req.query;
+    const project = await projectModel.find({
+      $or: [{ createdBy: userId }, { user: userId }],
+    });
 
     res.status(200).json(project);
   } catch (error) {

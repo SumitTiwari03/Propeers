@@ -34,9 +34,9 @@ const PostProfile = async (req, res) => {
       },
       socialLinks: {
         github: socialLinks?.github || "",
-        linkedIn: socialLinks?.linkedIn || "",
-        Twitter: socialLinks?.Twitter || "",
-        others: socialLinks?.others || "",
+        linkedin: socialLinks?.linkedin || "",
+        twitter: socialLinks?.twitter || "",
+        other: socialLinks?.other || "",
       },
       technicalSkill: technicalSkill || [],
     });

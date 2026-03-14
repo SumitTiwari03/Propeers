@@ -12,6 +12,7 @@ import Propeers from "./Propeers";
 import ProjectUpload from './ProjectUpload'
 import ForgotPassword from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
+import Favorites from "./Favorites";
 
 export {
   Home,
@@ -28,4 +29,5 @@ export {
   Propeers,
   ForgotPassword,
   ResetPassword,
+  Favorites,
 };

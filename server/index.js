@@ -32,6 +32,15 @@ app.get("/", (req, res) => {
   res.send("Welcome to home page");
 });
 
+// health check for uptime monitoring
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // all routers
 
 // authentication routers

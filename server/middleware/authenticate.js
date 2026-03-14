@@ -7,19 +7,22 @@ const authenticate = (req, res, next) => {
   const cookies = req.headers.cookie;
 
   if (!cookies) {
-    res.send({ Message: "No Login found. Please Login again" });
-  } else {
-    const token = cookies.split("=")[1];
-    jwt.verify(token, process.env.JWT_SECRETE, (err, user) => {
-      if (err) res.send({ Message: "Invalid token" });
-      if (user) {
-        req.body = user;
-        res.send({ user });
-      }
-    });
+    return res.status(401).send({ Message: "No Login found. Please Login again" });
   }
 
-  next();
+  // Safely parse the specific "usertoken" cookie from the cookie header
+  const tokenCookie = cookies.split(";").find((c) => c.trim().startsWith("usertoken="));
+  if (!tokenCookie) {
+    return res.status(401).send({ Message: "No Login found. Please Login again" });
+  }
+  const token = tokenCookie.trim().split("=").slice(1).join("=");
+
+  jwt.verify(token, process.env.JWT_SECRETE, (err, user) => {
+    if (err) return res.status(401).send({ Message: "Invalid token" });
+    if (user) {
+      return res.send({ user });
+    }
+  });
 };
 
 module.exports = authenticate;

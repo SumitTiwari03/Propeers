@@ -1,16 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FaUpload, FaLink, FaCode, FaTimes, FaImage, FaEdit } from 'react-icons/fa';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  FaUpload,
+  FaLink,
+  FaCode,
+  FaTimes,
+  FaImage,
+  FaEdit,
+} from "react-icons/fa";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const baseUrl = import.meta.env.VITE_URL;
 
-const InputField = ({ label, name, type = 'text', value, onChange, placeholder, required = false }) => (
+const InputField = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required = false,
+}) => (
   <div className="mb-4">
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+    >
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     <input
@@ -26,9 +44,19 @@ const InputField = ({ label, name, type = 'text', value, onChange, placeholder, 
   </div>
 );
 
-const TextAreaField = ({ label, name, value, onChange, placeholder, required = false }) => (
+const TextAreaField = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+}) => (
   <div className="mb-4">
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+    >
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     <textarea
@@ -45,21 +73,65 @@ const TextAreaField = ({ label, name, value, onChange, placeholder, required = f
 );
 
 const skills = [
-  'JavaScript', 'CSS', 'HTML', 'Python', 'React', 'Express', 'MongoDB',
-  'Node.js', 'TypeScript', 'Vue.js', 'Angular', 'Java', 'C++', 'Ruby',
-  'PHP', 'Swift', 'Kotlin', 'Go', 'Rust', 'SQL', 'GraphQL', 'Docker',
-  'Spline', 'Three.js', 'Next.js', 'GSAP'
+  "JavaScript",
+  "CSS",
+  "HTML",
+  "Python",
+  "React",
+  "Express",
+  "MongoDB",
+  "Node.js",
+  "TypeScript",
+  "Vue.js",
+  "Angular",
+  "Java",
+  "C++",
+  "Ruby",
+  "PHP",
+  "Swift",
+  "Kotlin",
+  "Go",
+  "Rust",
+  "SQL",
+  "GraphQL",
+  "Docker",
+  "Spline",
+  "Three.js",
+  "Next.js",
+  "GSAP",
+  "Framer Motion",
+  "Tailwind CSS",
+  "Material-UI",
+  "Bootstrap",
+  "Redux",
+  "MobX",
+  "Jest",
+  "Cypress",
+  "Git",
+  "GitHub",
+  "AWS",
+  "Azure",
+  "Google Cloud",
+  "Firebase",
+  "Heroku",
+  "Netlify",
+  "Vercel",
+  "Figma",
+  "Blender",
+  "Maya",
+  "AR.js",
+   "superbase", "prisma", "graphql",
 ];
 
 export default function ProjectUpload() {
   const [project, setProject] = useState({
-    title: '',
-    imgUrl: '',
-    projectUrl: '',
-    description: '',
+    title: "",
+    imgUrl: "",
+    projectUrl: "",
+    description: "",
   });
   const [selectedSkills, setSelectedSkills] = useState([]);
-  const [skillSearch, setSkillSearch] = useState('');
+  const [skillSearch, setSkillSearch] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
   const [createdBy, setCreatedBy] = useState(null);
@@ -69,22 +141,24 @@ export default function ProjectUpload() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProject(prev => ({ ...prev, [name]: value }));
+    setProject((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSkillSelect = (skill) => {
     if (!selectedSkills.includes(skill)) {
       setSelectedSkills([...selectedSkills, skill]);
     }
-    setSkillSearch('');
+    setSkillSearch("");
   };
 
   const handleSkillRemove = (skill) => {
-    setSelectedSkills(selectedSkills.filter(s => s !== skill));
+    setSelectedSkills(selectedSkills.filter((s) => s !== skill));
   };
 
-  const filteredSkills = skills.filter(skill =>
-    skill.toLowerCase().includes(skillSearch.toLowerCase()) && !selectedSkills.includes(skill)
+  const filteredSkills = skills.filter(
+    (skill) =>
+      skill.toLowerCase().includes(skillSearch.toLowerCase()) &&
+      !selectedSkills.includes(skill),
   );
 
   const handleImageSelect = (e) => {
@@ -129,23 +203,27 @@ export default function ProjectUpload() {
       formData.append("description", project.description);
       formData.append("createdBy", createdBy);
 
-      const response = await axios.post(`${baseUrl}/api/profile/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        `${baseUrl}/api/profile/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
 
       if (response.data) {
         toast.success("Project uploaded successfully!");
         setProject({
-          title: '',
-          imgUrl: '',
-          projectUrl: '',
-          description: '',
+          title: "",
+          imgUrl: "",
+          projectUrl: "",
+          description: "",
         });
         setSelectedSkills([]);
         setSelectedImage(null);
-        fileInputRef.current.value = ''; // Clear the file input
+        fileInputRef.current.value = ""; // Clear the file input
       }
     } catch (error) {
       console.error("Error uploading project:", error);
@@ -160,7 +238,10 @@ export default function ProjectUpload() {
       <>
         <h1 className="text-3xl">Please login..!</h1>
         <button className="bg-blue-500 mt-3 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white px-4 py-2 rounded flex items-center justify-center">
-          <Link to={'/login'} className='flex items-center justify-evenly w-full' >
+          <Link
+            to={"/login"}
+            className="flex items-center justify-evenly w-full"
+          >
             Login
           </Link>
         </button>
@@ -214,7 +295,11 @@ export default function ProjectUpload() {
                         <FaImage className="mr-2" />
                         Select Image
                       </button>
-                      {selectedImage && <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Image selected</span>}
+                      {selectedImage && (
+                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                          Image selected
+                        </span>
+                      )}
                     </div>
                     <InputField
                       label="Project Image URL (optional)"
@@ -245,7 +330,7 @@ export default function ProjectUpload() {
                       Technical Skills
                     </label>
                     <div className="flex flex-wrap gap-2 mb-2">
-                      {selectedSkills.map(skill => (
+                      {selectedSkills.map((skill) => (
                         <span
                           key={skill}
                           className="bg-red-600 text-white text-sm font-medium px-1 py-1 rounded dark:bg-red-900 dark:text-white flex items-center"
@@ -271,7 +356,7 @@ export default function ProjectUpload() {
                       />
                       {skillSearch && (
                         <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto dark:bg-gray-800 dark:border-gray-600">
-                          {filteredSkills.map(skill => (
+                          {filteredSkills.map((skill) => (
                             <li
                               key={skill}
                               onClick={() => handleSkillSelect(skill)}
@@ -292,7 +377,7 @@ export default function ProjectUpload() {
                       disabled={loading}
                       className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                     >
-                      {loading ? 'Uploading...' : 'Upload Project'}
+                      {loading ? "Uploading..." : "Upload Project"}
                     </motion.button>
                   </div>
                 </form>
@@ -307,26 +392,42 @@ export default function ProjectUpload() {
               className="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden flex-1 hidden lg:block"
             >
               <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Project Preview</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Project Preview
+                </h3>
                 <div className="aspect-w-16 aspect-h-9 mb-4">
                   <img
-                    src={selectedImage || project.imgUrl || '/placeholder.svg?height=400&width=600'}
+                    src={
+                      selectedImage ||
+                      project.imgUrl ||
+                      "/placeholder.svg?height=400&width=600"
+                    }
                     alt="Project Preview"
                     className="object-cover rounded-lg w-full h-64"
                   />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{project.title || 'Project Title'}</h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description || 'Project description will appear here.'}</p>
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {project.title || "Project Title"}
+                </h4>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  {project.description ||
+                    "Project description will appear here."}
+                </p>
                 <div className="flex-col justify-start text-xl">
                   <div className="flex items-center text-blue-500 dark:text-blue-400">
                     <FaLink className="mr-1" />
-                    <a href={project.projectUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                      {project.projectUrl || 'Project URL'}
+                    <a
+                      href={project.projectUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {project.projectUrl || "Project URL"}
                     </a>
                   </div>
                   <div className="flex items-center font-bold text-red-500 dark:text-red-400">
                     <FaCode className="mr-1" />
-                    <span>{selectedSkills.join(', ') || 'Tech stack'}</span>
+                    <span>{selectedSkills.join(", ") || "Tech stack"}</span>
                   </div>
                 </div>
               </div>
